@@ -1,31 +1,34 @@
 import java.util.HashMap;
 
-public class Magazine {
+public class Warehouse {
 
-    public enum Type{
-        FISH,
-        MEAT,
-        METAL,
-        WOOD,
-        COLA,
-        ICE,
-        DRUGS
-    }
     private final int maxResourceAmount;
-    private volatile HashMap<Type, Integer> magazine;
-    public Magazine(int maxResourceAmount){
-        this.magazine = new HashMap<>();
+    private volatile HashMap<Type, Integer> warehouse;
+    public Warehouse(int maxResourceAmount){
+        this.warehouse = new HashMap<>();
         this.maxResourceAmount = maxResourceAmount;
     }
 
-    public synchronized void getProducts(Type type, Integer amount){
-        if(this.magazine.get(type) < amount) return;
-        this.magazine.put(type,this.magazine.get(type));
+    public synchronized boolean getProducts(Type type, Integer amount, Integer consumerId){
+        if(this.warehouse.getOrDefault(type,0) < amount){
+            System.out.println("Consumer " + consumerId + " wanted to get too much products of type " + type.toString());
+            return false;
+        }
+        System.out.println("Consumer " + consumerId + " got " + amount + " products of type " + type.toString());
+        this.warehouse.put(type,this.warehouse.get(type));
+        return true;
     }
 
-    public synchronized void inputProducts(Type type, Integer amount){
-        if(this.magazine.getOrDefault(type, 0) + amount > this.maxResourceAmount) return;
-        this.magazine.put(type, this.magazine.getOrDefault(type,0) + amount);
+    public synchronized boolean inputProducts(Type type, Integer amount, Integer producerId){
+        if(this.warehouse.getOrDefault(type, 0) + amount > this.maxResourceAmount){
+            System.out.println("Producer " + producerId + " wanted to input too much products of type " + type.toString());
+            return false;
+        }
+        System.out.println("Producer " + producerId + " input " + amount + " products of type " + type.toString());
+        this.warehouse.put(type, this.warehouse.getOrDefault(type,0) + amount);
+        return true;
     }
+
+    public int getMaxResourceAmount(){ return this.maxResourceAmount;}
 
 }
